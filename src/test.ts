@@ -39,6 +39,25 @@ describe('serialisation', () => {
 
 	});
 
+	it('should serialise dates', () => {
+
+		const test = {
+			a: 'thing',
+			b: 'another thing',
+			c: new Date(),
+			d: {
+				aa: 'doop',
+				bb: 'waz'
+			}
+		};
+
+		const serialised = S.serialise(test);
+
+		const deserialised = S.deserialise(serialised);
+
+		assert.deepStrictEqual(deserialised, test);
+
+	});
 
 
 	describe('class serialisation', () => {
@@ -206,7 +225,7 @@ describe('serialisation', () => {
 		S.serialisable(MyPathologicalObject);
 
 		const o = new MyPathologicalObject();
-		const deserialised = S.deserialise(S.serialise(o))
+		const deserialised = S.deserialise(JSON.parse(JSON.stringify(S.serialise(o))));
 		assert.deepStrictEqual(o, deserialised);
 
 		const oProps = Object.getOwnPropertyNames(o).map(Object.getOwnPropertyDescriptor.bind(null, o));

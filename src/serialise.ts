@@ -204,7 +204,8 @@ function getTypeOfSerialised(t: any): KnownType {
 	return rawType;
 }
 
-export function deserialise(x: any) {
+export function deserialise<T>(x: any): T;
+export function deserialise(x: any): any {
 	const type = getTypeOfSerialised(x);
 	switch (type) {
 		case KnownType.object:
@@ -229,7 +230,6 @@ export function deserialise(x: any) {
 	}
 }
 
-function deserialiseObject<T>(o: SerialisedObject): T;
 function deserialiseObject(o: SerialisedObject): any {
 	switch (o.cName) {
 		case 'Number':
