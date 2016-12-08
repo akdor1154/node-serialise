@@ -131,7 +131,7 @@ assert.strictEqual(deserialised.method(), 84); // OK
 
 ## Caveats
 
-- Functions are not serialised themselves, you should define them on prototypes instead of literals. It is only partially possible to serialise functions, as their code is accessible but not their closure context. So, for example, given the following code,
+- Functions are not serialised themselves, you should define them on prototypes instead of literals. Even theoretically, is only partially possible to serialise functions, as their code is accessible but not their closure context. So, for example, given the following code,
 
 ```js
 function buildDoubler(x) {
@@ -143,7 +143,7 @@ function buildDoubler(x) {
 const myDoubler = buildDoubler(5);
 ```
 
-as far as I am aware it is impossible for me to properly serialise the function `myDoubler`.
+as far as I am aware it is impossible (assuming I'm not about to write a C++ Node hack) for me to properly serialise the function `myDoubler`.
 
 - Serialisation of types inheriting native types (`class SuperString extends String {}`) only works on ES6 implementations, sorry.
 
