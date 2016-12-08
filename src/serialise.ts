@@ -1,18 +1,18 @@
 const customConstructors: {[key: string]: Function} = {};
 
-export function serializable(constructor: Function) {
+export function serialisable(constructor: Function) {
 	if (customConstructors[constructor.name] != undefined) {
 		throw new Error(`There is already a registered constructor called ${constructor.name}.`);
 	}
 	customConstructors[constructor.name] = constructor;
 }
 
-export function serialize(x: any) {
+export function serialise(x: any) {
 
 	const type = getType(x);
 	switch (type) {
 		case KnownType.object:
-			return serializeObject(x);
+			return serialiseObject(x);
 
 		case KnownType.number:
 			return x;
@@ -21,16 +21,16 @@ export function serialize(x: any) {
 			return x;
 
 		case KnownType.function:
-			throw new Error('tried to serialize a function!');
+			throw new Error('tried to serialise a function!');
 
 		case KnownType.array:
-			return x.map(serialize);
+			return x.map(serialise);
 
 		case KnownType.null:
 			return null;
 
 		case KnownType.undefined:
-			return serializeUndefined();
+			return serialiseUndefined();
 
 		case KnownType.boolean:
 			return x;
@@ -41,97 +41,97 @@ export function serialize(x: any) {
 
 }
 
-interface SerializedObject {
+interface SerialisedObject {
 	cName: string;
-	data: SerializedProperties;
+	data: SerialisedProperties;
 }
 
-interface SerializedWrapper {
+interface SerialisedWrapper {
 	cName: string;
-	value?: SerializedPrimitive
-	data: SerializedProperties
+	value?: SerialisedPrimitive
+	data: SerialisedProperties
 }
 
 
-interface SerializedProperty {
-	v: SerializedValue;
+interface SerialisedProperty {
+	v: SerialisedValue;
 	w: boolean;
 	e: boolean;
 	c: boolean;
 }
 
-type SerializedProperties = {[key: string]: SerializedProperty};
+type SerialisedProperties = {[key: string]: SerialisedProperty};
 
-type SerializedPrimitive = string | number | boolean | null;
+type SerialisedPrimitive = string | number | boolean | null;
 
-type SerializedValue = SerializedPrimitive | Array<SerializedPrimitive> | SerializedObject | SerializedWrapper;
+type SerialisedValue = SerialisedPrimitive | Array<SerialisedPrimitive> | SerialisedObject | SerialisedWrapper;
 
 
 const undefinedTypeStr = '__undefined__';
-function serializeUndefined(): SerializedObject {
+function serialiseUndefined(): SerialisedObject {
 	return {cName: undefinedTypeStr, data: {}};
 }
 
-function serializeLiteral(x: any, baseConstructor?: SerializedWithSpecialConstructor): SerializedProperties {
+function serialiseLiteral(x: any, baseConstructor?: SerialisedWithSpecialConstructor): SerialisedProperties {
 	let propertyNames = Object.getOwnPropertyNames(x);
 	const properties: any = {};
-	const serialized: any = {}
+	const serialised: any = {}
 
 	if (baseConstructor) {
-		const deserialized = new baseConstructor.constructor(baseConstructor.serialized);
-		propertyNames = propertyNames.filter( (propName) => !deserialized.hasOwnProperty(propName))
+		const deserialised = new baseConstructor.constructor(baseConstructor.serialised);
+		propertyNames = propertyNames.filter( (propName) => !deserialised.hasOwnProperty(propName))
 	}
 
 	for (let propName of propertyNames) {
 		const descriptor = Object.getOwnPropertyDescriptor(x, propName);
-		serialized[propName] = {
-			v: serialize(descriptor.value),
+		serialised[propName] = {
+			v: serialise(descriptor.value),
 			w: descriptor.writable,
 			e: descriptor.enumerable,
 			c: descriptor.configurable
 		};
 	};
-	return serialized;
+	return serialised;
 }
 
 
 interface SpecialConstructor {
 	constructor: WrapperConstructor,
-	serialize: (x: any) => any
+	serialise: (x: any) => any
 };
 
 const n: WrapperConstructor = Number;
 
 
 const specialConstructors: SpecialConstructor[] = [
-	{constructor: Number, serialize: (x) => x.valueOf() as number},
-	{constructor: String, serialize: (x) => x.valueOf() as string},
-	{constructor: Date, serialize: (x) => (x as Date).getTime()},
-	{constructor: Boolean, serialize: (x) => x.valueOf() as boolean}
+	{constructor: Number, serialise: (x) => x.valueOf() as number},
+	{constructor: String, serialise: (x) => x.valueOf() as string},
+	{constructor: Date, serialise: (x) => (x as Date).getTime()},
+	{constructor: Boolean, serialise: (x) => x.valueOf() as boolean}
 ];
 
-interface SerializedWithSpecialConstructor {
+interface SerialisedWithSpecialConstructor {
 	constructor: WrapperConstructor,
-	serialized: SerializedPrimitive
+	serialised: SerialisedPrimitive
 }
 
-function getWrappedPrimitive(constructor: Function, x: any): SerializedWithSpecialConstructor | undefined {
+function getWrappedPrimitive(constructor: Function, x: any): SerialisedWithSpecialConstructor | undefined {
 
 	const parentConstructor = specialConstructors
 		.find( (sc) => sc.constructor.isPrototypeOf(constructor));
 
 	if (parentConstructor) {
-		return {constructor: parentConstructor.constructor, serialized: parentConstructor.serialize(x)};
+		return {constructor: parentConstructor.constructor, serialised: parentConstructor.serialise(x)};
 	}
 
 	return undefined;
 }
 
-function serializeObject(x: Object): SerializedObject | SerializedWrapper {
+function serialiseObject(x: Object): SerialisedObject | SerialisedWrapper {
 	if (x.constructor === Object) {
 		return {
 			cName: 'Object',
-			data: serializeLiteral(x)
+			data: serialiseLiteral(x)
 		}
 	} else {
 
@@ -141,12 +141,12 @@ function serializeObject(x: Object): SerializedObject | SerializedWrapper {
 		const constructor = x.constructor;
 		const primitiveValue = getWrappedPrimitive(constructor, x);
 
-		const returnValue: SerializedWrapper = {
+		const returnValue: SerialisedWrapper = {
 			cName: constructor.name,
-			data: serializeLiteral(x, primitiveValue)
+			data: serialiseLiteral(x, primitiveValue)
 		}
 
-		if (primitiveValue) { returnValue.value = primitiveValue.serialized }
+		if (primitiveValue) { returnValue.value = primitiveValue.serialised }
 		return returnValue;
 
 	}
@@ -190,12 +190,12 @@ function getType(t: any): KnownType {
 	}
 }
 
-function getTypeOfSerialized(t: any): KnownType {
+function getTypeOfSerialised(t: any): KnownType {
 	const rawType = getType(t);
 	if (rawType == KnownType.object) {
 		if (! t.cName ) {
 			console.error(t);
-			throw new Error('got a raw object (missing cName). We can only deserialize our own object format');
+			throw new Error('got a raw object (missing cName). We can only deserialise our own object format');
 		}
 		if (t.cName == undefinedTypeStr) {
 			return KnownType.undefined;
@@ -204,11 +204,11 @@ function getTypeOfSerialized(t: any): KnownType {
 	return rawType;
 }
 
-export function deserialize(x: any) {
-	const type = getTypeOfSerialized(x);
+export function deserialise(x: any) {
+	const type = getTypeOfSerialised(x);
 	switch (type) {
 		case KnownType.object:
-			return deserializeObject(x);
+			return deserialiseObject(x);
 		case KnownType.number:
 			return x;
 		case KnownType.string:
@@ -223,31 +223,31 @@ export function deserialize(x: any) {
 		case KnownType.null:
 			return null;
 		case KnownType.array:
-			return x.map(deserialize);
+			return x.map(deserialise);
 		default:
 			const xx: never = type;
 	}
 }
 
-function deserializeObject<T>(o: SerializedObject): T;
-function deserializeObject(o: SerializedObject): any {
+function deserialiseObject<T>(o: SerialisedObject): T;
+function deserialiseObject(o: SerialisedObject): any {
 	switch (o.cName) {
 		case 'Number':
-			return deserializeObjectWithConstructor(Number, o);
+			return deserialiseObjectWithConstructor(Number, o);
 		case 'String':
-			return deserializeObjectWithConstructor(String, o);
+			return deserialiseObjectWithConstructor(String, o);
 		case 'Date':
-			return deserializeObjectWithConstructor(Date, o);
+			return deserialiseObjectWithConstructor(Date, o);
 		case 'Boolean':
-			return deserializeObjectWithConstructor(Boolean, o);
+			return deserialiseObjectWithConstructor(Boolean, o);
 		case 'Object':
-			return deserializeObjectWithConstructor(Object, o);
+			return deserialiseObjectWithConstructor(Object, o);
 		default:
 			const constructor = customConstructors[o.cName];
 			if (!constructor) {
 				throw new Error('unknown constructor encountered with deserializing: '+o.cName);
 			}
-			return deserializeObjectWithConstructor(constructor, o);
+			return deserialiseObjectWithConstructor(constructor, o);
 	}
 }
 
@@ -255,19 +255,16 @@ interface WrapperConstructor {
 	new (data?: any): Object;
 }
 
-function deserializationConstructor(o: SerializedWrapper, constructor: Function, realConstructor?: WrapperConstructor) {
+function deserialisationConstructor(o: SerialisedWrapper, constructor: Function) {
 
 	function newConstructor(arg?: any) {
-		if (realConstructor) {
-			realConstructor.call(this, arg)
-		}
 
 		const propertyNames = Object.getOwnPropertyNames(o.data);
 		const properties: PropertyDescriptorMap = {};
 
 		for (let newProp of propertyNames) {
 			properties[newProp] = {
-				value: deserialize(o.data[newProp].v),
+				value: deserialise(o.data[newProp].v),
 				enumerable: o.data[newProp].e,
 				configurable: o.data[newProp].c,
 				writable: o.data[newProp].w
@@ -279,17 +276,25 @@ function deserializationConstructor(o: SerializedWrapper, constructor: Function,
 	}
 	newConstructor.prototype = constructor.prototype;
 
+
+
 	return newConstructor as any as WrapperConstructor;
 }
 
-function deserializeObjectWithConstructor(constructor: Function, o: SerializedWrapper): Object {
+function deserialiseObjectWithConstructor(constructor: Function, o: SerialisedWrapper): Object {
 
 	let specialConstructor: WrapperConstructor | undefined = undefined;
 	if (o.value) {
 		const sc = specialConstructors.find( (sc) => sc.constructor.isPrototypeOf(constructor));
 		specialConstructor = (sc) ? sc.constructor : undefined;
 	}
-	return new (deserializationConstructor(o, constructor, specialConstructor))()
-	
+
+	if (specialConstructor) {
+		const d = Reflect.construct(specialConstructor, [o.value], constructor);
+		deserialisationConstructor(o, constructor).call(d);
+		return d;
+	} else {
+		return new (deserialisationConstructor(o, constructor))()
+	}
 
 }
