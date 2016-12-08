@@ -195,7 +195,7 @@ describe('serialisation', () => {
 
 			S.serialisable(MySpecialObject);
 
-			const deserialized = S.deserialise(S.serialise(t));
+			const deserialized = S.deserialise<MySpecialObject>(S.serialise(t));
 
 			assert.deepStrictEqual(deserialized, t);
 			assert.strictEqual(deserialized.sumsq(), (10+5)**2);
