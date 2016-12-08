@@ -1,0 +1,35 @@
+{
+  "name": "serialise",
+  "version": "0.0.2",
+  "description": "Convert objects and class instances to/from JSON.stringify-able object literals.",
+  "main": "build/serialise.js",
+  "typings": "build/serialise",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akdor1154/node-serialise.git"
+  },
+  "keywords": [
+    "serialization",
+    "serialize",
+    "serialisation",
+    "serialise",
+    "pickle",
+    "pickling",
+    "json"
+  ],
+  "author": "Jarrad Whitaker <github.com/akdor1154>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akdor1154/node-serialise/issues"
+  },
+  "homepage": "https://github.com/akdor1154/node-serialise#readme",
+  "devDependencies": {
+    "@types/mocha": "^2.2.33",
+    "@types/node": "0.0.2",
+    "mocha": "^3.2.0",
+    "typescript": "^2.1.4"
+  }
+}
