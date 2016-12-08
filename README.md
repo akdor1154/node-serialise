@@ -149,7 +149,7 @@ as far as I am aware it is impossible for me to properly serialise the function 
 
 ## API
 
-# serialise(object)
+### serialise(object)
 
 ```ts
 serialise(object: any): any
@@ -157,7 +157,7 @@ serialise(object: any): any
 
 Serialises an object. You can pass the result of this to JSON.stringify safely.
 
-# deserialise(serialised)
+### deserialise(serialised)
 
 ```ts
 deserialise(serialised: any): any
@@ -166,7 +166,7 @@ deserialise<T>(serialised: any): T
 
 Deserialises a previously serialised object. You must register any constructors your object or its properties are built with before you call this (assuming you have used them; you can [de]serialise literals and primitives without hassle).
 
-# serialisable(Constructor)
+### serialisable(Constructor)
 
 ```ts
 serialisable(MyObject: Function): void
