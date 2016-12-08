@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"strictNullChecks": true,
+		"moduleResolution": "node",
+		"alwaysStrict": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"lib": ["es6", "es5"],
+		"outDir": "build",
+        "declaration": true
+	},
+	"include": [
+		"src/**/*.ts"
+	]
+}
