@@ -1,6 +1,6 @@
 {
   "name": "serialise",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Convert objects and class instances to/from JSON.stringify-able object literals.",
   "main": "build/serialise.js",
   "typings": "build/serialise",
