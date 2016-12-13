@@ -118,7 +118,7 @@ interface SerialisedWithSpecialConstructor {
 function getWrappedPrimitive(constructor: Function, x: any): SerialisedWithSpecialConstructor | undefined {
 
 	const parentConstructor = specialConstructors
-		.find( (sc) => sc.constructor.isPrototypeOf(constructor));
+		.find( (sc) => sc.constructor.isPrototypeOf(constructor) || sc.constructor === constructor);
 
 	if (parentConstructor) {
 		return {constructor: parentConstructor.constructor, serialised: parentConstructor.serialise(x)};
@@ -285,7 +285,7 @@ function deserialiseObjectWithConstructor(constructor: Function, o: SerialisedWr
 
 	let specialConstructor: WrapperConstructor | undefined = undefined;
 	if (o.value) {
-		const sc = specialConstructors.find( (sc) => sc.constructor.isPrototypeOf(constructor));
+		const sc = specialConstructors.find( (c) => (c.constructor.isPrototypeOf(constructor) || c.constructor == constructor));
 		specialConstructor = (sc) ? sc.constructor : undefined;
 	}
 

@@ -53,9 +53,11 @@ describe('serialisation', () => {
 
 		const serialised = S.serialise(test);
 
-		const deserialised = S.deserialise(serialised);
+		const deserialised = S.deserialise<typeof test>(serialised);
 
 		assert.deepStrictEqual(deserialised, test);
+
+		assert.deepStrictEqual(test.c.toISOString(), deserialised.c.toISOString())
 
 	});
 
